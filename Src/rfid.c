@@ -1,7 +1,14 @@
-/*
- * File : rfid.c
- * tanphuc
- * tanphuc.le@gmail.com
+
+/* File name	: rfid.c
+ * Project 		: RFID LAB
+ * Version 		: 1.0
+ * Creation Date: 12/04/2013
+ * Tabsize		: 4
+ * Author  		: Group PHM                  
+ * Copyright	: (c) 2013
+ * License		: Free.
+ * Comments		: 
+ * 
  */
  
 #include "rfid.h"

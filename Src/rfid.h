@@ -1,7 +1,13 @@
-/*
- * File : rfid.h
- * tanphuc
- * tanphuc.le@gmail.com
+/* File name	: rfid.h
+ * Project 		: RFID LAB
+ * Version 		: 1.0
+ * Creation Date: 12/04/2013
+ * Tabsize		: 4
+ * Author  		: Group PHM                  
+ * Copyright	: (c) 2013
+ * License		: Free.
+ * Comments		: 
+ * 
  */
 
 #ifndef	__BOOM_H__
