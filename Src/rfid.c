@@ -1,3 +1,9 @@
+/*
+ * File : rfid.c
+ * tanphuc
+ * tanphuc.le@gmail.com
+ */
+ 
 #include "rfid.h"
 
 #define MSG_LEGHT 8
