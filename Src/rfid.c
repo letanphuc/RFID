@@ -1,4 +1,3 @@
-
 /* File name	: rfid.c
  * Project 		: RFID LAB
  * Version 		: 1.0
@@ -13,7 +12,11 @@
  
 #include "rfid.h"
 
-#define MSG_LEGHT 8
+#define MSG_LEGHT 	8
+#define CHAR_BEGIN 	'A'
+#define CHAR_END	'B'
+
+//#define FULL_DISPLAY
 
 #ifdef DEBUG
 void
@@ -97,19 +100,18 @@ ListBox(
 
 
 unsigned long int count_10ms = 0;
-unsigned char button = 0;
+
 unsigned int minute,second, microsecond;
-unsigned char state = CONFIG_MIN;
 unsigned char ucButtons, ucChanged, ucRepeat;
 unsigned char time_change = 0;
-unsigned char time_out = 0;
+
 
 unsigned char change = 0;
 unsigned char listcount = 0;
 
-char temp[9];
+char temp[8];
 char tempCount = 0;
-char buff[16][9];
+char buff[16][8];
 char buffCount = 0;
 
 
@@ -125,9 +127,17 @@ void UARTIntHandler(void)
     {
 		temp[tempCount] = ROM_UARTCharGetNonBlocking(UART0_BASE);
 		
-		if (tempCount == 7){
-			tempCount = 0;
-			sprintf(buff[buffCount],"%s",temp);
+		if (tempCount == 6){
+			
+			tempCount = 0;			
+			if (temp[0] == CHAR_BEGIN && temp[6] == CHAR_END){
+				temp[6] = '\0';
+				sprintf(buff[buffCount],"%s",&temp[1]);
+			}
+			else
+				sprintf(buff[buffCount],"Error");
+			
+			
 			buffCount++;
 		}
 		else
@@ -153,6 +163,9 @@ void Timer0IntHandler(void)
 	else if (second < 59 ){
 		second ++;
 		microsecond = 0;
+		#ifndef FULL_DISPLAY
+			time_change = 1;
+		#endif
 	}
 	else {
 		minute ++;
@@ -160,7 +173,9 @@ void Timer0IntHandler(void)
 		microsecond = 0;
 	}
 
-	time_change = 1;
+	#ifdef FULL_DISPLAY
+		time_change = 1;
+	#endif
 	
 
 	IntMasterEnable();
@@ -205,6 +220,9 @@ void Timer1IntHandler(void)
 
 
 int init(void){
+	int i;
+	
+	
 	ROM_SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
 						   SYSCTL_XTAL_8MHZ);
 	Formike128x128x16Init();
@@ -238,7 +256,7 @@ int init(void){
 	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
 	
 	ROM_GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
-    ROM_UARTConfigSetExpClk(UART0_BASE, ROM_SysCtlClockGet(), 115200,
+    ROM_UARTConfigSetExpClk(UART0_BASE, ROM_SysCtlClockGet(), 9600,
                             (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE |
                              UART_CONFIG_PAR_NONE));
     ROM_IntEnable(INT_UART0);
@@ -254,16 +272,6 @@ int init(void){
 	
 	ListBoxWrapDisable(&List);
 	
-	return 1;
-}
-
-/* Main function */
-int main(void){
-	int i;
-	char s[30];
-	
-	init();
-	
 	for (i=1; i<1; i++){
 		sprintf(listbuff[i],"TEST %d",i);
 		ListBoxTextAdd(&List,listbuff[i]);
@@ -271,9 +279,19 @@ int main(void){
 
 	
 	listcount = 1;
-	//listcount = 0;
 	
-	temp[8] = '\0';
+	temp[7] = '\0';
+	
+	return 1;
+}
+
+/* Main function */
+int main(void){
+	char s[30];
+	
+	init();
+	
+	
 	
 	UARTprintf("\n\n** RFID DEMO **\n");
 	UARTprintf("Hello\n");
@@ -288,8 +306,8 @@ int main(void){
 	
 	while(1){
 		
-		
 		while(!change && !time_change);
+		
 		if (change){
 			change = 0;
 			WidgetPaint((tWidget *)&List);
@@ -297,11 +315,13 @@ int main(void){
 		}
 		else if (time_change){
 			time_change = 0;
+			
 			#ifdef FULL_DISPLAY
 				sprintf(s,"%d%d:%d%d:%d%d",minute/10,minute%10,second/10,second%10, microsecond/10,microsecond%10);
 			#else
 				sprintf(s,"%d%d:%d%d",minute/10,minute%10,second/10,second%10);
 			#endif
+			
 			CanvasTextSet(&String,s);
 			WidgetPaint((tWidget *)&String);
 			WidgetMessageQueueProcess();
