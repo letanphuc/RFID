@@ -1,3 +1,9 @@
+/*
+ * File : rfid.h
+ * tanphuc
+ * tanphuc.le@gmail.com
+ */
+
 #ifndef	__BOOM_H__
 #define	__BOOM_H__
 
